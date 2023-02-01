@@ -1,0 +1,15 @@
+{
+  "python.linting.enabled": false,
+  "python.linting.pylintPath": "pylint",
+  "editor.formatOnSave": true,
+  "python.formatting.provider": "yapf",
+  "python.linting.pylintEnabled": true,
+  "editor.rulers": [
+    80
+  ],
+  "cSpell.words": [
+    "matplotlib"
+  ],
+  "editor.tabSize": 2,
+  "python.analysis.typeCheckingMode": "off"
+}
