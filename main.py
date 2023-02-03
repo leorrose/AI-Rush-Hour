@@ -6,8 +6,9 @@ import functools
 from rush_hour.vehicle import Vehicle
 from rush_hour.board import RushHourBoard, GOAL_VEHICLE
 from search.bfs import BFS
-from rush_hour.problem import NoHeuristicRushHour
-from py_search.uninformed import breadth_first_search
+from rush_hour.problem import ZeroHeuristicRushHour, BlockingCarsHeuristicRushHour
+from py_search.uninformed import breadth_first_search, depth_first_search
+from py_search.informed import best_first_search
 
 from py_search.utils import compare_searches
 
@@ -23,10 +24,10 @@ if __name__ == "__main__":
           for symbol, x, y, orientation in vehicles_info
       ]
       board = RushHourBoard(vehicles)
-
+      print(f"\n\n{problem}")
       compare_searches(
-          problems=[NoHeuristicRushHour(board)],
-          searches=[breadth_first_search]
+          problems=[BlockingCarsHeuristicRushHour(initial=board)],
+          searches=[best_first_search]
       )
       """
       bfs = BFS(board)

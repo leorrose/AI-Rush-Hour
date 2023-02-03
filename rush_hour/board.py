@@ -3,12 +3,12 @@
 from __future__ import annotations
 import numpy as np
 from rush_hour.vehicle import Vehicle
-from typing import List, Generator
+from typing import Tuple, List, Generator
 import copy
 
 # Set the goal vehicle
 GOAL_VEHICLE_SYMBOL = 'X'
-GOAL_VEHICLE = Vehicle('X', 4, 2, 'H')
+GOAL_VEHICLE = Vehicle(GOAL_VEHICLE_SYMBOL, 4, 2, 'H')
 
 
 class RushHourBoard:
@@ -21,9 +21,6 @@ class RushHourBoard:
         vehicles (List[Vehicle]): List of vehicles in board.
     """
     self._vehicles = vehicles
-
-  def __hash__(self) -> int:
-    return hash(self.__repr__())
 
   def __eq__(self, __o: object) -> bool:
     # Test if object is an instance of RushHourBoard
@@ -39,6 +36,9 @@ class RushHourBoard:
 
   def __str__(self) -> str:
     return self.get_board().__str__()
+
+  def __hash__(self) -> int:
+    return hash(self.__repr__())
 
   @property
   def vehicles(self) -> List[Vehicle]:
@@ -75,11 +75,14 @@ class RushHourBoard:
       board[vehicle.get_location_indexes()] = vehicle.symbol
     return board
 
-  def get_next_possible_states(self) -> Generator[RushHourBoard]:
+  def get_next_possible_states(
+      self
+  ) -> Generator[Tuple[Tuple[str, str]], RushHourBoard]:
     """Method to get all possible next states from current state.
 
     Yields:
-        RushHourBoard: A generator of next possible states.
+         Generator[Tuple[Tuple[str, str]], RushHourBoard]: A generator of
+            actions and next possible states.
     """
     # Get current board
     board = self.get_board()
@@ -95,7 +98,7 @@ class RushHourBoard:
           # Move vehicle in next state to not affect current state
           new_vehicles = copy.deepcopy(self.vehicles)
           new_vehicles[vehicle_idx].move_vehicle("left")
-          yield RushHourBoard(new_vehicles)
+          yield (vehicle.symbol, "left"), RushHourBoard(new_vehicles)
         # Check left position is legal and empty
         if vehicle.can_move_vehicle("right") and board[vehicle.y,
                                                        vehicle.x_end +
@@ -103,7 +106,7 @@ class RushHourBoard:
           # Move vehicle in next state to not affect current state
           new_vehicles = copy.deepcopy(self.vehicles)
           new_vehicles[vehicle_idx].move_vehicle("right")
-          yield RushHourBoard(new_vehicles)
+          yield (vehicle.symbol, "right"), RushHourBoard(new_vehicles)
       # Move down or up
       else:
         # Check up position is legal and empty
@@ -112,14 +115,35 @@ class RushHourBoard:
           # Move vehicle in next state to not affect current state
           new_vehicles = copy.deepcopy(self.vehicles)
           new_vehicles[vehicle_idx].move_vehicle("up")
-          yield RushHourBoard(new_vehicles)
+          yield (vehicle.symbol, "up"), RushHourBoard(new_vehicles)
         # Check down position is legal and empty
         if vehicle.can_move_vehicle("down") and board[vehicle.y_end + 1,
                                                       vehicle.x] == ' ':
           # Move vehicle in next state to not affect current state
           new_vehicles = copy.deepcopy(self.vehicles)
           new_vehicles[vehicle_idx].move_vehicle("down")
-          yield RushHourBoard(new_vehicles)
+          yield (vehicle.symbol, "down"), RushHourBoard(new_vehicles)
+
+  def get_num_blocking_cars(self) -> int:
+    # Get current board
+    board = self.get_board()
+    # Counter for number of blocking cars
+    num = 0
+    # Loop from exit until we get to the red car
+    for i in range(5, -1, -1):
+      # Get cell content
+      cell = board[2, i]
+      # Return number of blocking cars
+      if cell == "X":
+        return num
+      # No blocking car to add
+      elif cell == " ":
+        continue
+      # Blocking car to add
+      else:
+        num += 1
+    # We didn't find the red car
+    return np.inf
 
   def is_solved(self) -> bool:
     """Method to check if board is solved
