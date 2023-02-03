@@ -1,4 +1,6 @@
-""" This module contains RushHourBoard class for rush hour game. """
+""" This module contains RushHourBoard class for rush hour game.
+
+"""
 
 from __future__ import annotations
 import numpy as np
@@ -77,7 +79,7 @@ class RushHourBoard:
 
   def get_next_possible_states(
       self
-  ) -> Generator[Tuple[Tuple[str, str]], RushHourBoard]:
+  ) -> Generator[Tuple[Tuple[str, str], RushHourBoard], None, None]:
     """Method to get all possible next states from current state.
 
     Yields:
@@ -124,11 +126,28 @@ class RushHourBoard:
           new_vehicles[vehicle_idx].move_vehicle("down")
           yield (vehicle.symbol, "down"), RushHourBoard(new_vehicles)
 
-  def get_num_blocking_cars(self) -> int:
-    """Method to get number of cars blocking the red car
+  def get_distance_to_exit(self) -> int:
+    """Method to get distance of red car to goal car
 
     Returns:
-        int: Number of cars blocking the red car.
+        int: Distance of red car to goal car
+    """
+    # Find the red car
+    red_car = None
+    for vehicle in self.vehicles:
+      if vehicle.symbol == GOAL_VEHICLE_SYMBOL:
+        red_car = vehicle
+        break
+
+    # Get distance
+    distance = abs(red_car.x - GOAL_VEHICLE.x) + abs(red_car.y - GOAL_VEHICLE.y)
+    return distance
+
+  def get_num_blocking_vehicles(self) -> int:
+    """Method to get number of vehicle blocking the red car
+
+    Returns:
+        int: Number of vehicle blocking the red car.
 
     """
     # Get current board
@@ -139,17 +158,55 @@ class RushHourBoard:
     for i in range(5, -1, -1):
       # Get cell content
       cell = board[2, i]
-      # Return number of blocking cars
+      # Return number of blocking vehicle
       if cell == "X":
-        return num
-      # No blocking car to add
+        break
+      # No blocking vehicle to add
+      elif cell == " ":
+        continue
+      # Blocking vehicle to add
+      else:
+        num += 1
+    return num
+
+  def get_improved_num_blocking_vehicles(self) -> int:
+    """Method to get number of vehicle blocking the red car and check if these
+        vehicles are also blocked.
+
+    Returns:
+        int: Number of vehicle blocking the red car and if a vehicle is blocked
+            too than we count it as two instead of 1.
+
+    """
+    # Get current board
+    board = self.get_board()
+    # Counter for number of blocking vehicle
+    num = 0
+    # Define set of vehicles blocking
+    vehicles_blocking = set()
+    # Loop from exit until we get to the red car
+    for i in range(5, -1, -1):
+      # Get cell content
+      cell = board[2, i]
+      # Return number of blocking vehicle
+      if cell == "X":
+        break
+      # No blocking vehicle to add
       elif cell == " ":
         continue
       # Blocking car to add
       else:
+        # Add vehicle symbol
+        vehicles_blocking.add(cell)
         num += 1
-    # We didn't find the red car
-    return np.inf
+
+    # Loop over all blocking vehicle
+    for vehicle in self.vehicles:
+      if vehicle.symbol in vehicles_blocking:
+        if (not vehicle.can_move_vehicle("up")
+           ) and (not vehicle.can_move_vehicle("up")):
+          num += 1
+    return num
 
   def is_solved(self) -> bool:
     """Method to check if board is solved
