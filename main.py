@@ -1,19 +1,18 @@
 """ """
 
 import os
-import time
-import functools
 from rush_hour.vehicle import Vehicle
-from rush_hour.board import RushHourBoard, GOAL_VEHICLE
+from rush_hour.board import RushHourBoard
 from search.bfs import BFS
-from rush_hour.problem import ZeroHeuristicRushHour, BlockingCarsHeuristicRushHour
-from py_search.uninformed import breadth_first_search, depth_first_search
+from rush_hour.problems import (ZeroHeuristicRushHour, BlockingCarsHeuristicRushHour)
+from py_search.uninformed import (breadth_first_search, depth_first_search)
 from py_search.informed import best_first_search
-
 from py_search.utils import compare_searches
 
-DIR_PATH = os.path.dirname(__file__)
-PROBLEMS_PATH = f"{DIR_PATH}/problems"
+
+# Get boards path
+DIR_PATH = os.path.abspath(os.path.dirname(__file__))
+PROBLEMS_PATH =  os.path.join(DIR_PATH, "boards")
 
 if __name__ == "__main__":
   for problem in os.listdir(PROBLEMS_PATH):
@@ -25,9 +24,22 @@ if __name__ == "__main__":
       ]
       board = RushHourBoard(vehicles)
       print(f"\n\n{problem}")
+
+      #
+
       compare_searches(
-          problems=[BlockingCarsHeuristicRushHour(initial=board)],
-          searches=[best_first_search]
+          problems=[
+              ZeroHeuristicRushHour(initial=board),
+              BlockingCarsHeuristicRushHour(initial=board)
+          ], searches=[best_first_search]
+      )
+
+      #
+      compare_searches(
+          problems=[
+              ZeroHeuristicRushHour(initial=board),
+              BlockingCarsHeuristicRushHour(initial=board)
+          ], searches=[best_first_search]
       )
       """
       bfs = BFS(board)

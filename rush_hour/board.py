@@ -125,6 +125,12 @@ class RushHourBoard:
           yield (vehicle.symbol, "down"), RushHourBoard(new_vehicles)
 
   def get_num_blocking_cars(self) -> int:
+    """Method to get number of cars blocking the red car
+
+    Returns:
+        int: Number of cars blocking the red car.
+
+    """
     # Get current board
     board = self.get_board()
     # Counter for number of blocking cars
