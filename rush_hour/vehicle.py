@@ -187,21 +187,21 @@ class Vehicle:
 
     """
     if direction == "left":
-      self.x -= 1 if self.orientation == "H" else ValueError(
-          "Cannot move vertical vehicle left"
-      )
+      if self.orientation != "H":
+        ValueError("Cannot move vertical vehicle right")
+      self.x -= 1
     elif direction == "right":
-      self.x += 1 if self.orientation == "H" else ValueError(
-          "Cannot move vertical vehicle right"
-      )
+      if self.orientation != "H":
+        ValueError("Cannot move vertical vehicle right")
+      self.x += 1
     elif direction == "down":
-      self.y += 1 if self.orientation == "V" else ValueError(
-          "Cannot move horizontal vehicle down"
-      )
+      if self.orientation != "V":
+        ValueError("Cannot move vertical vehicle right")
+      self.y += 1
     elif direction == "up":
-      self.y -= 1 if self.orientation == "V" else ValueError(
-          "Cannot move horizontal vehicle up"
-      )
+      if self.orientation != "V":
+        ValueError("Cannot move vertical vehicle right")
+      self.y -= 1
     else:
       raise ValueError("Invalid direction")
 
